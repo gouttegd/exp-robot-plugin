@@ -1,1 +1,1 @@
-org.incenp.obofoundry.robot.CheckPointCommand
+org.incenp.obofoundry.robot.CheckpointCommand
