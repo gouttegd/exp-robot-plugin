@@ -123,5 +123,4 @@ public abstract class BasePlugin implements Command {
     protected IRI getIRI(String term, String field) {
         return CommandLineHelper.maybeCreateIRI(ioHelper, term, field);
     }
-
 }
