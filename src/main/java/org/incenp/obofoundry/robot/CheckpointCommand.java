@@ -26,7 +26,7 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.parameters.OntologyCopy;
 
 /**
- * A plugin to add and return to “checkpoints” in a ROBOT pipeline.
+ * A command to add and return to “checkpoints” in a ROBOT pipeline.
  * <p>
  * Use the <code>checkpoint</code> command with the <code>-s</code> option to
  * create the checkpoint, that is, to save the current state of the ontology

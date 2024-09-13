@@ -31,7 +31,7 @@ import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.util.OWLObjectTransformer;
 
 /**
- * A plugin to expand short-form identifiers (“CURIEs”) into the corresponding
+ * A command to expand short-form identifiers (“CURIEs”) into the corresponding
  * long-form IRIs within annotations.
  * <p>
  * That plugin will transform an annotation assertion axiom like this:
