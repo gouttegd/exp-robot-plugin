@@ -40,7 +40,7 @@ public abstract class BasePlugin implements Command {
     private String description;
     private String usage;
     protected Options options;
-    private IOHelper ioHelper;
+    protected IOHelper ioHelper;
 
     /**
      * Creates a new command.
