@@ -1,3 +1,6 @@
 org.incenp.obofoundry.robot.CheckpointCommand
 org.incenp.obofoundry.robot.ExpandCurieCommand
 org.incenp.obofoundry.robot.ExtractOrcidCommand
+org.incenp.obofoundry.robot.PreprocessODKImportCommand
+org.incenp.obofoundry.robot.PostprocessODKImportCommand
+org.incenp.obofoundry.robot.InjectDeclarationsCommand
