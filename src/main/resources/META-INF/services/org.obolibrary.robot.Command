@@ -5,3 +5,4 @@ org.incenp.obofoundry.robot.PreprocessODKImportCommand
 org.incenp.obofoundry.robot.PostprocessODKImportCommand
 org.incenp.obofoundry.robot.InjectDeclarationsCommand
 org.incenp.obofoundry.robot.MergeAxiomAnnotationsCommand
+org.incenp.obofoundry.robot.SubsetExtractCommand
