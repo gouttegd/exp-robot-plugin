@@ -119,21 +119,22 @@ public class ValidateCommand extends BasePlugin {
             }
         }
 
+        if ( line.hasOption("report-output") ) {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(line.getOptionValue("report-output")));
+            List<String> unalignedIRIs = new ArrayList<>();
+            for ( OWLClass unalignedClass : unalignedClasses ) {
+                unalignedIRIs.add(unalignedClass.getIRI().toString());
+            }
+            unalignedIRIs.sort((a, b) -> a.compareTo(b));
+            for ( String iri : unalignedIRIs ) {
+                writer.write(iri);
+                writer.write('\n');
+            }
+            writer.close();
+        }
+
         if ( !unalignedClasses.isEmpty() ) {
             logger.error("Ontology contains {} unaligned class(es)", unalignedClasses.size());
-            if ( line.hasOption("report-output") ) {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(line.getOptionValue("report-output")));
-                List<String> unalignedIRIs = new ArrayList<>();
-                for ( OWLClass unalignedClass : unalignedClasses ) {
-                    unalignedIRIs.add(unalignedClass.getIRI().toString());
-                }
-                unalignedIRIs.sort((a, b) -> a.compareTo(b));
-                for ( String iri : unalignedIRIs ) {
-                    writer.write(iri);
-                    writer.write('\n');
-                }
-                writer.close();
-            }
             System.exit(1);
         }
     }
