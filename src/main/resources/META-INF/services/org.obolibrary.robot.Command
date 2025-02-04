@@ -4,3 +4,4 @@ org.incenp.obofoundry.robot.ExtractOrcidCommand
 org.incenp.obofoundry.robot.AnnotateCommand
 org.incenp.obofoundry.robot.NormalizeCommand
 org.incenp.obofoundry.robot.SubsetExtractCommand
+org.incenp.obofoundry.robot.ValidateCommand
