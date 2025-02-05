@@ -97,7 +97,7 @@ public class ValidateCommand extends BasePlugin {
 
         Set<OWLClass> unalignedClasses = new HashSet<>();
         for ( OWLClass klass : upperOntology.getClassesInSignature(Imports.INCLUDED) ) {
-            if ( !klass.isTopEntity() && isInBase(klass.getIRI().toString()) ) {
+            if ( !klass.isTopEntity() && !upperClasses.contains(klass) && isInBase(klass.getIRI().toString()) ) {
                 if ( ignoreDangling && isDangling(upperOntology, klass) ) {
                     continue;
                 }
