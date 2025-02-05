@@ -114,7 +114,10 @@ public class ValidateCommand extends BasePlugin {
                     }
                 }
                 if ( !aligned ) {
-                    unalignedClasses.add(klass);
+                    // Report only top-level classes (whose only parent is owl:Thing)
+                    if ( ancestors.size() == 1 ) {
+                        unalignedClasses.add(klass);
+                    }
                 }
             }
         }
@@ -134,7 +137,7 @@ public class ValidateCommand extends BasePlugin {
         }
 
         if ( !unalignedClasses.isEmpty() ) {
-            logger.error("Ontology contains {} unaligned class(es)", unalignedClasses.size());
+            logger.error("Ontology contains {} top-level unaligned class(es)", unalignedClasses.size());
             System.exit(1);
         }
     }
