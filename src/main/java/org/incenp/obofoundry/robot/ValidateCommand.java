@@ -92,7 +92,7 @@ public class ValidateCommand extends BasePlugin {
         // We merge the current ontology into the upper ontology rather than the other
         // way around, so that the current ontology remains unchanged and can be used
         // for other operations downstream in the ROBOT pipeline
-        MergeOperation.mergeInto(state.getOntology(), upperOntology);
+        MergeOperation.mergeInto(state.getOntology(), upperOntology, true, true);
         OWLReasoner reasoner = CommandLineHelper.getReasonerFactory(line).createReasoner(upperOntology);
 
         Set<OWLClass> unalignedClasses = new HashSet<>();
