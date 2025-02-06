@@ -117,6 +117,9 @@ public class SubsetExtractCommand extends BasePlugin {
 
             for ( String query : line.getOptionValues("query") ) {
                 OWLClassExpression expr = p.parse(query);
+                if ( expr.isNamed() ) {
+                    subset.add(expr.asOWLClass());
+                }
                 subset.addAll(reasoner.getSubClasses(expr, false).getFlattened());
                 subset.addAll(reasoner.getEquivalentClasses(expr).getEntitiesMinusTop());
                 if ( line.getOptionValue("include-ancestors", "false").equals("true") ) {
