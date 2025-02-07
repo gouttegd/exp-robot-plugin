@@ -32,9 +32,12 @@ import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
 /**
@@ -53,6 +56,8 @@ public class NormalizeCommand extends BasePlugin {
         options.addOption(null, "inject-synonym-declarations", true, "inject declarations for synonym types");
         options.addOption(null, "base-iri", true, "inject declaration for properties in the indicated namespace");
 
+        options.addOption(null, "remove-dangling", true, "remove references to dangling classes");
+
         baseIRIs.add("http://purl.obolibrary.org/obo/");
         baseIRIs.add("http://www.ebi.ac.uk/efo/");
         baseIRIs.add("http://w3id.org/biolink/");
@@ -69,6 +74,10 @@ public class NormalizeCommand extends BasePlugin {
 
         if ( injectSubsetDecls || injectSynonymDecls ) {
             injectDeclarations(state.getOntology(), injectSubsetDecls, injectSynonymDecls);
+        }
+
+        if ( line.getOptionValue("remove-dangling", "false").equals("true") ) {
+            removeDangling(state.getOntology());
         }
     }
 
@@ -146,5 +155,45 @@ public class NormalizeCommand extends BasePlugin {
                 collectIRI(synonyms, annotation.getValue().asIRI().get().toString());
             }
         }
+    }
+
+    private void removeDangling(OWLOntology ontology) {
+        Set<OWLClass> dangling = new HashSet<>();
+        for ( OWLClass klass : ontology.getClassesInSignature(Imports.INCLUDED) ) {
+            if ( isDangling(ontology, klass) ) {
+                dangling.add(klass);
+            }
+        }
+
+        Set<OWLAxiom> axioms = new HashSet<>();
+        for ( OWLAxiom ax : ontology.getAxioms(Imports.INCLUDED) ) {
+            boolean remove = false;
+            for ( OWLClass klass : ax.getClassesInSignature() ) {
+                if ( dangling.contains(klass) ) {
+                    remove = true;
+                }
+            }
+            if ( remove ) {
+                axioms.add(ax);
+            }
+        }
+
+        ontology.getOWLOntologyManager().removeAxioms(ontology, axioms);
+    }
+
+    private boolean isDangling(OWLOntology ontology, OWLClass klass) {
+        int nAxioms = 0;
+        for ( OWLAxiom ax : ontology.getAxioms(klass, Imports.INCLUDED) ) {
+            if ( ax instanceof OWLSubClassOfAxiom ) {
+                OWLSubClassOfAxiom sca = (OWLSubClassOfAxiom) ax;
+                if ( !sca.getSuperClass().isTopEntity() ) {
+                    nAxioms += 1;
+                }
+            } else if ( !(ax instanceof OWLDisjointClassesAxiom) ) {
+                nAxioms += 1;
+            }
+        }
+        nAxioms += ontology.getAnnotationAssertionAxioms(klass.getIRI()).size();
+        return nAxioms == 0;
     }
 }
