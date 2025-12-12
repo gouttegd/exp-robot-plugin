@@ -1,6 +1,6 @@
 /*
  * Experimental ROBOT plugin
- * Copyright © 2024 Damien Goutte-Gattat
+ * Copyright © 2024,2025 Damien Goutte-Gattat
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.obolibrary.robot.CommandState;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
@@ -45,10 +46,10 @@ public class ExtractOrcidCommand extends BasePlugin {
 
     public ExtractOrcidCommand() {
         super("extract-orcids", "extract ORCIDs referenced in the ontology",
-                "robot extract-orcids -i <INPUT> [--orcid-file <FILE>] [--orcid-module <FILE>]");
+                "robot extract-orcids -i <INPUT> [--orcid-file <FILE>]");
 
         options.addOption(null, "orcid-file", true, "Extract ORCIDs from the specified ontology");
-        options.addOption(null, "orcid-module", true, "Save extracted ORCIDs to the specified file");
+        options.addOption(null, "orcid-iri", true, "Extract ORCIDs from the specified ontology IRI");
         options.addOption(null, "merge", false, "Merge the extracted ORCIDs into the current ontology");
         options.addOption(null, "property", true,
                 "Extract ORCIDS referenced in annotations with the specified property");
@@ -57,7 +58,7 @@ public class ExtractOrcidCommand extends BasePlugin {
     @Override
     public void performOperation(CommandState state, CommandLine line) throws Exception {
         OWLOntology source = state.getOntology();
-        OWLOntologyManager mgr = source.getOWLOntologyManager();
+        OWLOntologyManager mgr = OWLManager.createConcurrentOWLOntologyManager();
         OWLDataFactory factory = mgr.getOWLDataFactory();
 
         HashSet<IRI> properties = new HashSet<IRI>();
@@ -86,12 +87,11 @@ public class ExtractOrcidCommand extends BasePlugin {
         // Get the referenced ORCID individuals
         OWLOntology orcidOnt = null;
         if ( line.hasOption("orcid-file") ) {
-            // Get them from an external file
             orcidOnt = ioHelper.loadOntology(line.getOptionValue("orcid-file"));
+        } else if ( line.hasOption("orcid-iri") ) {
+            orcidOnt = ioHelper.loadOntology(ioHelper.createIRI(line.getOptionValue("orcid-iri")));
         } else {
-            // Get them directly from the current ontology (assuming ORCIDIO has already
-            // been merged in at this point)
-            orcidOnt = source;
+            orcidOnt = ioHelper.loadOntology(IRI.create("https://w3id.org/orcidio/orcidio.owl"));
         }
         HashSet<OWLAxiom> axioms = new HashSet<OWLAxiom>();
         for ( IRI ref : refs ) {
@@ -102,17 +102,9 @@ public class ExtractOrcidCommand extends BasePlugin {
         }
 
         // Save the result
-        if ( line.hasOption("orcid-module") ) {
-            // Save to a separate file
-            OWLOntology output = mgr.createOntology();
-            mgr.addAxioms(output, axioms);
-            ioHelper.saveOntology(output, line.getOptionValue("orcid-module"));
-        }
-        if ( line.hasOption("merge") ) {
-            // Merge into the current ontology; only makes sense with --orcid-file,
-            // otherwise the current ontology already contains all ORCIDIO axioms
-            mgr.addAxioms(source, axioms);
-        }
+        OWLOntology output = mgr.createOntology();
+        mgr.addAxioms(output, axioms);
+        state.setOntology(output);
     }
 
     private void processAnnotation(OWLAnnotation annotation, Set<IRI> refs, Set<IRI> properties) {
