@@ -11,8 +11,8 @@ Currently available commands include:
 
 * `checkpoint`, to set and revert to a “checkpoint” in a ROBOT pipeline;
 * `expand-curies`, to expand CURIEs to IRIs in annotation values;
-* `extract-orcids`, to inject [ORCIDIO](https://w3id.org/orcidio/orcidio.owl)
-  individuals into an ontology.
+* `fix-robot-report`, to automatically fix trivial issues reported by
+  ROBOT’s `report` command.
 
 Building and using
 ------------------
